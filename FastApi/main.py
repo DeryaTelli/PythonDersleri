@@ -31,4 +31,28 @@ async def hello_world():
 # http methodlari :get,post,put,head,delete,patch,options,connect,trace
 # sunucudan okuma islemi yapmak istiyorsak get kullanabilirz
 
+courses_db=[
+    {'id': 1, 'instructor': 'Derya', 'title': 'Python', 'category': 'Development'},
+    {'id': 2, 'instructor': 'Mehmet', 'title': 'JavaScript', 'category': 'Web Development'},
+    {'id': 3, 'instructor': 'Ayşe', 'title': 'DataScience', 'category': 'Data'},
+    {'id': 4, 'instructor': 'Ali', 'title': 'MachineLearning', 'category': 'AI'},
+    {'id': 5, 'instructor': 'Zeynep', 'title': 'React', 'category': 'Frontend'},
+    {'id': 6, 'instructor': 'Can', 'title': 'Docker', 'category': 'DevOps'},
+    {'id': 7, 'instructor': 'Derya', 'title': 'Java', 'category': 'Development'},
 
+]
+
+@app.get("/courses")
+async def get_all_courses():
+    return courses_db
+
+#/docs yazarsak api ile kullandigim tum methodlari gorurum
+
+# filtre kullanarak nasil deger cekeriz path veya query kullaniriz
+# dinamik bir path yapmak istiyorsak onu degisken gibi kabul edecegini var sayiyoruz ve suslu parantez icini aliyoruz
+@app.get("/courses/{course_title}")
+async def get_course(course_title: str):
+    for course in courses_db:
+        if course.get('title').casefold() == course_title.casefold():
+            return course
+# burada ayni olma olaylarinda buyuk harf kucuk harf duyarli olabilir ya lower(),upper() yada casefold() kullaniriz
