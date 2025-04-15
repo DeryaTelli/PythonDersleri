@@ -48,6 +48,7 @@ async def get_all_courses():
 
 #/docs yazarsak api ile kullandigim tum methodlari gorurum
 
+#path parameter
 # filtre kullanarak nasil deger cekeriz path veya query kullaniriz
 # dinamik bir path yapmak istiyorsak onu degisken gibi kabul edecegini var sayiyoruz ve suslu parantez icini aliyoruz
 @app.get("/courses/{course_title}")
@@ -56,3 +57,20 @@ async def get_course(course_title: str):
         if course.get('title').casefold() == course_title.casefold():
             return course
 # burada ayni olma olaylarinda buyuk harf kucuk harf duyarli olabilir ya lower(),upper() yada casefold() kullaniriz
+
+
+#path cakismasi
+@app.get("/courses/{course_id}")
+async def get_course_by_id(course_id:int):
+    for id in courses_db:
+        if id.get('id')== course_id:
+            return id
+
+# course title id olarak degistirsekde id tarama yaparken null deger verecektir
+# bunun sebebi uzantilarin ayni olmasidiir
+
+@app.get("/courses/byid/{course_id}")
+async def get_course_by_id(course_id: int):
+    for id in courses_db:
+        if id.get('id') == course_id:
+            return id
