@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI ,Body
 
 app=FastAPI()
 
@@ -97,3 +97,30 @@ async def get_instructor_category_by_query(course_instructor:str , category:str)
                 and course.get('category').casefold() == category.casefold()):
             courses_to_return.append(course)
     return courses_to_return
+
+
+
+
+#post
+#body gonderilen isteklerin iceriklerini alip eklemek icin body kullaniyoruz
+@app.post("/courses/create_course")
+async def create_course(new_course=Body()):
+    courses_db.append(new_course)
+    # .append fonksiyonu ekleme yapiyor
+
+#update and delete
+# ekleme islemi yaparken cift tirnak kullan lutfen
+@app.put("/courses/update_course")
+async def update_course(updated_course=Body()):
+    for index in range(len(courses_db)):
+        if courses_db[index].get("id")==updated_course.get("id"):
+            # index numarasi ayni olan bir seyi degistirmek icin indexe gore aldik indexi ayni olan varsa yeni ekledigim degerleri ekleyecektir
+            courses_db[index]=updated_course
+
+
+@app.delete("/courses/delete_course/{course_id}")
+async  def delete_course(course_id:int):
+    for index in range(len(courses_db)):
+        if courses_db[index].get("id")==course_id:
+            courses_db.pop(index)
+            break
