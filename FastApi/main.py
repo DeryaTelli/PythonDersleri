@@ -34,7 +34,7 @@ async def hello_world():
 courses_db=[
     {'id': 1, 'instructor': 'Derya', 'title': 'Python', 'category': 'Development'},
     {'id': 2, 'instructor': 'Mehmet', 'title': 'JavaScript', 'category': 'Web Development'},
-    {'id': 3, 'instructor': 'Ayşe', 'title': 'DataScience', 'category': 'Development'},
+    {'id': 3, 'instructor': 'Asli', 'title': 'DataScience', 'category': 'Development'},
     {'id': 4, 'instructor': 'Ali', 'title': 'MachineLearning', 'category': 'cloud'},
     {'id': 5, 'instructor': 'Zeynep', 'title': 'React', 'category': 'cloud'},
     {'id': 6, 'instructor': 'Can', 'title': 'Docker', 'category': 'DevOps'},
@@ -88,3 +88,12 @@ async def get_category_by_query(category:str):
     return courses_to_return
 #http://127.0.0.1:8000/courses/?category=cloud soru isareti oldugu icin bunun bir query oldugunu anliyoruz
 
+#path and query filtreleme yaptik
+@app.get("/courses/{course_instructor}/")
+async def get_instructor_category_by_query(course_instructor:str , category:str):
+    courses_to_return=[]
+    for course in courses_db:
+        if (course.get('instructor').casefold()==course_instructor.casefold()
+                and course.get('category').casefold() == category.casefold()):
+            courses_to_return.append(course)
+    return courses_to_return
