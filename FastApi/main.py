@@ -34,9 +34,9 @@ async def hello_world():
 courses_db=[
     {'id': 1, 'instructor': 'Derya', 'title': 'Python', 'category': 'Development'},
     {'id': 2, 'instructor': 'Mehmet', 'title': 'JavaScript', 'category': 'Web Development'},
-    {'id': 3, 'instructor': 'Ayşe', 'title': 'DataScience', 'category': 'Data'},
-    {'id': 4, 'instructor': 'Ali', 'title': 'MachineLearning', 'category': 'AI'},
-    {'id': 5, 'instructor': 'Zeynep', 'title': 'React', 'category': 'Frontend'},
+    {'id': 3, 'instructor': 'Ayşe', 'title': 'DataScience', 'category': 'Development'},
+    {'id': 4, 'instructor': 'Ali', 'title': 'MachineLearning', 'category': 'cloud'},
+    {'id': 5, 'instructor': 'Zeynep', 'title': 'React', 'category': 'cloud'},
     {'id': 6, 'instructor': 'Can', 'title': 'Docker', 'category': 'DevOps'},
     {'id': 7, 'instructor': 'Derya', 'title': 'Java', 'category': 'Development'},
 
@@ -74,3 +74,17 @@ async def get_course_by_id(course_id: int):
     for id in courses_db:
         if id.get('id') == course_id:
             return id
+
+
+
+#query example
+@app.get("/courses/")
+async def get_category_by_query(category:str):
+    courses_to_return=[]
+    #tek bir deger dondurmayecegim icin dizi olusturdum
+    for course in courses_db:
+        if course.get('category').casefold()==category.casefold():
+            courses_to_return.append(course)
+    return courses_to_return
+#http://127.0.0.1:8000/courses/?category=cloud soru isareti oldugu icin bunun bir query oldugunu anliyoruz
+
