@@ -1,4 +1,5 @@
 from fastapi import FastAPI , Depends
+from typing import Annotated
 app = FastAPI()
 
 #dependency Injection Nedir?
@@ -11,8 +12,12 @@ app = FastAPI()
 def hello_world():
     return "Hello welcome to FastAPI!"
 
-def get_hello_world(hello: str=Depends(hello_world)):
-    return f"Hello world service: {hello_world()}"
+HelloDependency = Annotated[str:Depends(hello_world)]
+
+#def get_hello_world(hello: str=Depends(hello_world)):
+def get_hello_world(hello: HelloDependency):
+    #return f"Hello world service: {hello_world()}"
+    return f"Hello world service: {hello}"
 
 
 @app.get("/hello")
