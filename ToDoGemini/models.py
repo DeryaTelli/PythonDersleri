@@ -11,6 +11,10 @@ class Todo(Base):
     complete=Column(Boolean, default=False)
     owner_id=Column(Integer, ForeignKey('users.id'))
 
+#migration database tablosu olusturulduktan sonra
+#ayni tabloda bir sey olustururken yada silerken veritabanimiz anlik olarak guncellenmiyor
+# ona kodda yaptigimz degisikliklerin uygulanmasi icin migration kullaniyoruz
+
 class User(Base):
     __tablename__='users'
     id=Column(Integer, primary_key=True, index=True)
