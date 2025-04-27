@@ -1,16 +1,17 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status , Request
 from jose.constants import ALGORITHMS
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from sqlalchemy.util import deprecated
 from starlette import status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from database import SessionLocal
 from models import User
 from jose import jwt, JWTError
 from datetime import timedelta,datetime,timezone
+from fastapi.templating import Jinja2Templates
+# jinja demek {% ile gosterilen ifadelerdir
 
 #router mantigi
 # bir klasor olusturup end pointerli kapsayan tum islemleri bir dosya icinde toplar
@@ -21,6 +22,9 @@ router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
 )
+
+templates=Jinja2Templates(directory="templates")
+
 
 SECRET_KEY="ij2cgacxohygmlhfbs3l0oa9dbrx1wl8"
 ALGORITHMS="HS256"
@@ -81,6 +85,17 @@ def authenticate_user(username:str, password:str,db):
         return False
         #verify ile kullanicin sifresi ile database kaydedilen hash kod aynimi onu kontrol ediyoruz
     return user
+
+#html sayfalarini bagladik
+@router.get("/login_page")
+def render_login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request":request})
+
+@router.get("/register_page")
+def render_register_page(request: Request):
+    return templates.TemplateResponse("register.html", {"request":request})
+
+
 
 
 #alt enter diyip import et
