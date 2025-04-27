@@ -1,5 +1,4 @@
 from typing import Annotated
-from aiohttp.abc import HTTPException
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose.constants import ALGORITHMS
 from pydantic import BaseModel
