@@ -1,16 +1,17 @@
 from typing import Annotated
-
 from aiohttp.abc import HTTPException
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+from jose.constants import ALGORITHMS
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from sqlalchemy.util import deprecated
 from starlette import status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-
 from database import SessionLocal
 from models import User
+from jose import jwt, JWTError
+from datetime import timedelta,datetime,timezone
 
 #router mantigi
 # bir klasor olusturup end pointerli kapsayan tum islemleri bir dosya icinde toplar
@@ -22,6 +23,8 @@ router = APIRouter(
     tags=["Authentication"],
 )
 
+SECRET_KEY="ij2cgacxohygmlhfbs3l0oa9dbrx1wl8"
+ALGORITHMS="HS256"
 
 def get_db():
     db=SessionLocal()
@@ -32,6 +35,7 @@ def get_db():
 
 db_dependency=Annotated[Session, Depends(get_db)]
 bcrypt_context=CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_bearer=OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 class CreateUserRequest(BaseModel):
@@ -41,6 +45,33 @@ class CreateUserRequest(BaseModel):
     last_name:str
     password:str
     role:str
+
+class Token(BaseModel):
+    access_token:str
+    token_type:str
+
+
+#encoding kismi jwtnin
+def create_access_token(username:str, user_id:int, role:str,expires_delta:timedelta):
+    encode={'sub':username, 'id':user_id, 'role':role}
+    expires=datetime.now(timezone.utc)+expires_delta
+    encode.update({'exp': expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHMS)
+
+#decoding kismi jwtnin
+async def get_current_user(token:Annotated[str,Depends(oauth2_bearer)]):
+    try:
+        encode=jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHMS])
+        username=encode.get('sub')
+        user_id=encode.get('id')
+        user_role=encode.get('role')
+        if username is None or user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Username or Id is  invalid")
+        return {'username':username, 'id':user_id, 'user_role':user_role}
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is invalid")
+
+
 
 def authenticate_user(username:str, password:str,db):
     user=db.query(User).filter(User.username==username).first()
@@ -70,12 +101,12 @@ async def create_user(db:db_dependency , create_user_request: CreateUserRequest)
 #token: kullanici giris yaptiginda kullanicita token veriyoruz istek olarak atiyoruz
 # kullanici icin ona ozel olustrudugmuz bir token guvenlik icin kullaniyoruz
 
-@router.post("/token")
+@router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,Depends()], db:db_dependency):
     user=authenticate_user(form_data.username,form_data.password,db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="incorrect username or password")
-    token=""
+    token = create_access_token(user.username, user.id, user.role, timedelta(minutes=60))
     return {"access_token":token, "token_type":"bearer"}
 
 #JWT Token Ne Demek?
