@@ -10,6 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette import status
 
 app=FastAPI()
+#yayinlama
+
 app.mount("/static", StaticFiles(directory="static"),name="static")
 
 #ana app girenlerin nereye gitmesi gerektigi gosteriyoruz bu kodla
