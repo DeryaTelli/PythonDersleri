@@ -3,12 +3,12 @@ from starlette.responses import Response
 from pydantic import Field
 from pydantic import BaseModel
 from starlette import status
-from  models import Base, Todo
+from  ..models import Base, Todo
 from sqlalchemy.orm import Session
-from database import engine, SessionLocal
+from ..database import engine, SessionLocal
 #database baglantisi sagliyoruz sessionlocal kullanarak
 from typing import Annotated
-from routers.auth import get_current_user
+from ..routers.auth import get_current_user
 from fastapi.templating import Jinja2Templates
 from starlette.responses import RedirectResponse
 from dotenv import load_dotenv
@@ -28,7 +28,7 @@ router=APIRouter(
     prefix="/todo",
     tags=["Todo"]
 )
-templates=Jinja2Templates(directory="templates")
+templates=Jinja2Templates(directory="app/templates")
 
 class TodoRequest(BaseModel):
     # alt enter ile import islemi yapabilirsin
