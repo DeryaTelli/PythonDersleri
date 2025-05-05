@@ -526,3 +526,6 @@
   background: var(--color-bg);
   min-height: 100vh;
 }
+.dropdown-menu.open {
+  display: flex;
+}
