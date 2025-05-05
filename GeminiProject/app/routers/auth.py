@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-
+from pydantic import BaseModel, EmailStr
 from app.database.database import get_db
 from app.models.user import User
 from config.settings import get_settings
@@ -63,28 +63,30 @@ async def get_current_user(
     return user
 
 
+class RegisterRequest(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+
+
 @router.post("/register")
-def register(
-        username: str,
-        email: str,
-        password: str,
-        db: Session = Depends(get_db)
-):
-    db_user = db.query(User).filter(User.email == email).first()
+async def register(user: RegisterRequest, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    hashed_password = get_password_hash(password)
+    hashed_password = pwd_context.hash(user.password)
     new_user = User(
-        email=email,
-        username=username,
+        email=user.email,
+        username=user.username,
         hashed_password=hashed_password
     )
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message": "User created successfully"}
 
+    return {"message": "User created successfully"}
 
 @router.post("/login")
 async def login(

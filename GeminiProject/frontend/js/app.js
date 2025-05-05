@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
       logoutLink.addEventListener('click', function (e) {
         e.preventDefault();
         localStorage.clear();  // Clear all stored data (end session)
-        window.location.href = 'index.html';
+        window.location.href = '/static/index.html';
       });
     }
 
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem('user', JSON.stringify(newUser));
         localStorage.setItem('isLoggedIn', 'false');  // user is not logged in yet
         // Redirect to login page after successful registration
-        window.location.href = 'login.html';
+        window.location.href = '/static/login.html';
       });
     }
   });

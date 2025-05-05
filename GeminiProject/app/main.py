@@ -40,3 +40,16 @@ app.mount("/static", StaticFiles(directory="frontend"), name="static")
 @app.get("/")
 async def serve_index():
     return FileResponse("frontend/index.html")
+
+
+@app.get("/login")
+async def serve_login():
+    return FileResponse("frontend/login.html")
+
+@app.get("/register")
+async def serve_register():
+    return FileResponse("frontend/register.html")
+
+@app.get("/dashboard")
+async def serve_dashboard():
+    return FileResponse("frontend/dashboard.html")

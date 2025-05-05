@@ -45,27 +45,23 @@
     const password2 = document.getElementById("reg-pass2").value;
 
     if (password !== password2) {
-      alert("Şifreler eşleşmiyor!");
-      return;
+        alert("Passwords do not match!");
+        return;
     }
 
-    try {
-      const response = await fetch("/api/register", {
+    const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password })
-      });
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok) {
-        alert("Kayıt başarılı, giriş yapabilirsiniz!");
-        window.location.href = "/login.html";
-      } else {
-        alert(data.detail || "Kayıt başarısız!");
-      }
-    } catch (err) {
-      alert("Bir hata oluştu: " + err.message);
+    if (response.ok) {
+        alert("Registration successful!");
+        window.location.href = "/login";
+    } else {
+        alert(data.detail || "Registration failed");
     }
   });
 

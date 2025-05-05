@@ -24,7 +24,7 @@
         <input type="password" id="login-password" placeholder="Enter your password" required>
       </div>
       <button type="submit" class="btn primary-btn">Login</button>
-      <p>No account? <a href="register.html">Register here</a></p>
+      <p>No account? <a href="/static/register.html">Register here</a></p>
     </form>
   </div>
   <script src="js/app.js" defer></script><script src="/static/js/app.js"></script>
@@ -48,12 +48,12 @@
     if (response.ok) {
       localStorage.setItem("token", data.access_token);
       alert("Başarıyla giriş yaptınız!");
-      window.location.href = "/dashboard.html";
+      window.location.href = "/static/dashboard.html";
     } else {
       alert(data.detail || "Giriş başarısız!");
     }
   } catch (err) {
-    alert("Bir hata oluştu: " + err.message);
+    alert("Bir hata oluştu: " + err. Message);
   }
 });
 
