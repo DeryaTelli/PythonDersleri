@@ -26,6 +26,7 @@ router = APIRouter(
 templates=Jinja2Templates(directory="app/templates")
 
 
+
 SECRET_KEY="ij2cgacxohygmlhfbs3l0oa9dbrx1wl8"
 ALGORITHMS="HS256"
 

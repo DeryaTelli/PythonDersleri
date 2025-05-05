@@ -170,7 +170,7 @@ def markdown_to_text(markdown_string):
 def create_todo_with_gemini(todo_string:str):
     load_dotenv()
     genai.configure(api_key=os.environ.get('GOOGLE_API_KEY'))
-    llm = ChatGoogleGenerativeAI(model="gemini-pro")
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
     response=llm.invoke(
         #istedigim mesajlari buraya dizi olarak verebiliyorum
         [
@@ -179,6 +179,3 @@ def create_todo_with_gemini(todo_string:str):
         ]
     )
     return markdown_to_text(response.content)
-
-if __name__=="__main__":
-    print(create_todo_with_gemini("learn python"))
