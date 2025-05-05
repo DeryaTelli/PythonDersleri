@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Horizon AI</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="register-page">
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="breadcrumb">Pages / Register</div>
+    </div>
+
+    <!-- Kayıt formu -->
+    <form class="form">
+      <h2>Register</h2>
+      <div class="form-group">
+        <label for="reg-name">Name</label>
+        <input type="text" id="reg-name" placeholder="Enter your name" required>
+      </div>
+      <div class="form-group">
+        <label for="reg-email">Email</label>
+        <input type="email" id="reg-email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="reg-pass">Password</label>
+        <input type="password" id="reg-pass" placeholder="Create a password" required>
+      </div>
+      <div class="form-group">
+        <label for="reg-pass2">Confirm Password</label>
+        <input type="password" id="reg-pass2" placeholder="Confirm your password" required>
+      </div>
+      <button type="submit" class="btn primary-btn">Register</button>
+      <p>Already have an account? <a href="login.html">Sign In</a></p>
+    </form>
+  </div>
+  <script src="js/app.js" defer></script>
+  <script>document.querySelector("form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const username = document.getElementById("reg-name").value;
+    const email = document.getElementById("reg-email").value;
+    const password = document.getElementById("reg-pass").value;
+    const password2 = document.getElementById("reg-pass2").value;
+
+    if (password !== password2) {
+      alert("Şifreler eşleşmiyor!");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Kayıt başarılı, giriş yapabilirsiniz!");
+        window.location.href = "/login.html";
+      } else {
+        alert(data.detail || "Kayıt başarısız!");
+      }
+    } catch (err) {
+      alert("Bir hata oluştu: " + err.message);
+    }
+  });
+
+  </script>
+
+</body>
+</html>

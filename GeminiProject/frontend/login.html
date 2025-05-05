@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Horizon AI</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="login-page">
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="breadcrumb">Pages / Sign In</div>
+    </div>
+
+    <form class="form">
+      <h2>Sign In</h2>
+      <div class="form-group">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password" required>
+      </div>
+      <button type="submit" class="btn primary-btn">Login</button>
+      <p>No account? <a href="register.html">Register here</a></p>
+    </form>
+  </div>
+  <script src="js/app.js" defer></script><script src="/static/js/app.js"></script>
+
+  <!-- eklenen kod  -->
+  <script>
+  document.querySelector("form").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+
+  try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ username: email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem("token", data.access_token);
+      alert("Başarıyla giriş yaptınız!");
+      window.location.href = "/dashboard.html";
+    } else {
+      alert(data.detail || "Giriş başarısız!");
+    }
+  } catch (err) {
+    alert("Bir hata oluştu: " + err.message);
+  }
+});
+
+</script>
+
+</body>
+</html>
