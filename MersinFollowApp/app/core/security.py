@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from jose import jwt
+from jose import jwt , JWTError
+from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from app.core.config import settings
 
@@ -32,3 +33,10 @@ def create_access_token(sub: str, *, extra: dict | None = None, expires_minutes:
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
    #payload (to_encode) belirtilen secret ve algoritme hs256 ile imzalanalir
    #sonuc string jwt
+
+
+def decode_access_token(token: str) -> dict:
+    try:
+        return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALG])
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")

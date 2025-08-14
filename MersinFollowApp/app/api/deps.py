@@ -1,7 +1,9 @@
 from typing import Generator
-from fastapi import Header, HTTPException, status
+from fastapi import Header, HTTPException, status , Depends
 from app.db.session import SessionLocal
 from app.core.config import settings
+from app.core.security import decode_access_token
+from app.repositories.user_repo import UserRepository
 
 
 def get_db() -> Generator:
@@ -15,3 +17,19 @@ def require_admin_key(x_admin_key: str = Header(..., alias="X-Admin-Key")):  # N
     if x_admin_key != settings.ADMIN_API_KEY:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin key.")
     return True
+
+
+def get_current_user(
+    authorization: str | None = Header(None, alias="Authorization"),
+    db = Depends(get_db),
+):
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    token = authorization.split(" ", 1)[1]
+    payload = decode_access_token(token)
+    user_id = int(payload.get("sub", "0"))
+    repo = UserRepository(db)
+    user = repo.get_by_id(user_id)
+    if not user or not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+    return user

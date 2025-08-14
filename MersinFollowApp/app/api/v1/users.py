@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.api.deps import get_db, require_admin_key
+from app.api.deps import get_db, require_admin_key ,get_current_user
 from app.schemas.user import UserCreate, UserOut, UserLogin, TokenOut
 from app.services.user_service import UserService
+from app.domain.user import User as UserEntity
 
 router = APIRouter(prefix="/users", tags=["users"])
 #bu router altindaki tum endpointlerin urlsi /users ile baslayacak
@@ -29,3 +30,7 @@ def admin_create_user(
         return user
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/me", response_model=UserOut)
+def me(current_user: UserEntity = Depends(get_current_user)):
+    return current_user
