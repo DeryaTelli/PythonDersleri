@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.domain.user import User
+from app.domain.user import User , Role
 
 class UserRepository:
     def __init__(self, db: Session):
@@ -19,3 +19,10 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
+
+  # NEW: role filtreli liste
+    def list_by_role(self, role: Role | None = None) -> list[User]:
+        stmt = select(User).where(User.is_active == True)
+        if role:
+            stmt = stmt.where(User.role == role)
+        return list(self.db.scalars(stmt))

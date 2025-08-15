@@ -4,6 +4,8 @@ from app.db.session import SessionLocal
 from app.core.config import settings
 from app.core.security import decode_access_token
 from app.repositories.user_repo import UserRepository
+from app.domain.user import User as UserEntity, Role as RoleDomain
+
 
 
 def get_db() -> Generator:
@@ -33,3 +35,7 @@ def get_current_user(
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
     return user
+def require_admin_jwt(current_user: UserEntity = Depends(get_current_user)):
+    if current_user.role != RoleDomain.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admins only.")
+    return current_user
