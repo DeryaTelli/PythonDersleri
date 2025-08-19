@@ -27,4 +27,4 @@ class UserService:
         if not user or not verify_password(password, user.password_hash) or not user.is_active:
             raise ValueError("Invalid credentials.")
         # Flutter bu JWT ile giriş yapacak
-        return create_access_token(str(user.id), extra={"email": user.email})
+        return create_access_token(str(user.id), extra={"email": user.email, "role": user.role.value} )
