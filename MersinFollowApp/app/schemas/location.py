@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime, date
+from typing import Optional
 
 class LocationIn(BaseModel):
     lat: float = Field(ge=-90, le=90)
@@ -21,3 +22,9 @@ class LastLocation(BaseModel):
 
 class DayQuery(BaseModel):
     day: date
+
+class LocationUpdate(BaseModel):
+    lat: Optional[float] = Field(None, ge=-90, le=90)
+    lon: Optional[float] = Field(None, ge=-180, le=180)
+    # created_at'i güncellersen day alanı yeniden hesaplanacak
+    created_at: Optional[datetime] = None

@@ -20,6 +20,21 @@ class UserRepository:
         self.db.refresh(user)
         return user
 
+    def delete(self, user: User, hard: bool = False):
+        if hard:
+            self.db.delete(user)
+        else:
+            user.is_active = False
+            self.db.add(user)
+        self.db.commit()
+
+    def save(self, user: User) -> User:
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
+
   # NEW: role filtreli liste
     def list_by_role(self, role: Role | None = None) -> list[User]:
         stmt = select(User).where(User.is_active == True)

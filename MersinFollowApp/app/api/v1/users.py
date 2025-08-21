@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.api.deps import get_db, require_admin_key ,get_current_user, require_admin_jwt
-from app.schemas.user import UserCreate, UserOut, UserLogin, TokenOut ,Role as RoleSchema
+from app.schemas.user import UserCreate,  UserLogin, TokenOut ,Role as RoleSchema
 from app.services.user_service import UserService
 from app.domain.user import User as UserEntity
 from typing import List
 from app.repositories.user_repo import UserRepository
 from app.domain.user import Role as RoleDomain
+from app.schemas.user import UserOut, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
 #bu router altindaki tum endpointlerin urlsi /users ile baslayacak
@@ -47,3 +48,34 @@ def admin_create_user(
 @router.get("/me", response_model=UserOut)
 def me(current_user: UserEntity = Depends(get_current_user)):
     return current_user
+
+@router.patch("/admin/{user_id}", response_model=UserOut)
+def admin_update_user(
+    user_id: int,
+    payload: UserUpdate,
+    db: Session = Depends(get_db),
+    _ok: bool = Depends(require_admin_key),
+):
+    repo = UserRepository(db)
+    svc = UserService(db)
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        return svc.update_user(user, payload)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/admin/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def admin_delete_user(
+    user_id: int,
+    hard: bool = False,
+    db: Session = Depends(get_db),
+    _ok: bool = Depends(require_admin_key),
+):
+    repo = UserRepository(db)
+    user = repo.get_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    repo.delete(user, hard=hard)
+    return

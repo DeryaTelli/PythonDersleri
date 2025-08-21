@@ -7,6 +7,8 @@ from app.repositories.location_repo import LocationRepository
 from app.schemas.location import LocationIn, LocationOut, LastLocation
 from app.ws.manager import manager
 from app.core.security import decode_access_token
+from app.schemas.location import LocationUpdate, LocationOut
+from app.api.deps import get_db, require_admin_key
 
 router = APIRouter(prefix="/tracking", tags=["tracking"])
 
@@ -34,6 +36,64 @@ def admin_last(db: Session = Depends(get_db), _admin: UserEntity = Depends(requi
         out.append({"user_id": u.id, "first_name": u.first_name, "last_name": u.last_name,
                     "lat": p.lat, "lon": p.lon, "created_at": p.created_at})
     return out
+
+
+
+# --- Tek bir noktayı GÜNCELLE (kendi noktası veya admin)
+@router.patch("/points/{point_id}", response_model=LocationOut)
+def update_point_admin(
+    point_id: int,
+    payload: LocationUpdate,
+    db: Session = Depends(get_db),
+    _ok: bool = Depends(require_admin_key),             # X-Admin-Key
+):
+    repo = LocationRepository(db)
+    p = repo.get_by_id(point_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Point not found")
+    p = repo.update_point(p, lat=payload.lat, lon=payload.lon, created_at=payload.created_at)
+    return {"user_id": p.user_id, "lat": p.lat, "lon": p.lon, "created_at": p.created_at}
+# --- Tek bir noktayı SİL (kendi noktası veya admin)
+@router.delete("/points/{point_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_point(
+    point_id: int,
+    db: Session = Depends(get_db),
+    me: UserEntity = Depends(get_current_user),
+):
+    repo = LocationRepository(db)
+    p = repo.get_by_id(point_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Point not found")
+    if (me.role.value != "admin") and (p.user_id != me.id):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    repo.delete_point(p)
+    return
+
+# --- Bir günün TÜM noktalarını SİL (kendi günü)
+@router.delete("/points/{point_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_point_admin(
+    point_id: int,
+    db: Session = Depends(get_db),
+    _ok: bool = Depends(require_admin_key),             #  X-Admin-Key
+):
+    repo = LocationRepository(db)
+    p = repo.get_by_id(point_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Point not found")
+    repo.delete_point(p)
+    return
+
+# --- Admin: belirli kullanıcının gününü sil
+@router.delete("/admin/{user_id}/day", status_code=status.HTTP_200_OK)
+def admin_delete_user_day(
+    user_id: int,
+    day: date = Query(...),
+    db: Session = Depends(get_db),
+    _ok: bool = Depends(require_admin_key),             #  X-Admin-Key
+):
+    repo = LocationRepository(db)
+    count = repo.delete_points_for_day(user_id, day)
+    return {"deleted": count}
 
 # ---- WS auth yardımcı
 async def _auth_ws_token(raw_token: str) -> dict:
